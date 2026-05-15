@@ -128,12 +128,7 @@ class RectangularPartition:
         return neighbors
 
 
-"""Parser para ficheiros de partição
-    Lê ficheiro com formato:
-    num_instances
-    num_rectangles
-    rect_id num_vertices x1 y1 x2 y2 ...
-    ..."""
+"""Parser para ficheiros de partição"""
 
 def parse_partition_file(filename: str) -> List[RectangularPartition]:
     partitions = []

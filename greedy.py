@@ -25,14 +25,13 @@ class GreedySolver:
             self.target_rectangles = target_rectangles
     
     
-# ESTRATÉGIA 1: MAX COVERAGE
+#MAX COVERAGE
     """
-        Escolhe sempre o vértice que cobre MAIS retângulos não cobertos.
+        Escolhe sempre o vértice que cobre mais retângulos não cobertos.
         
-        Critério: max |cobertos_pelo_vértice ∩ não_cobertos|
+        O critério é o max |cobertos_pelo_vértice ∩ não_cobertos|
         
-        Returns:
-            (lista_de_guardas, número_guardas, tempo_execução)
+        Dá return de (lista_de_guardas, número_guardas, tempo_execução)
     """
   
     
@@ -72,13 +71,11 @@ class GreedySolver:
 
     # ESTRATÉGIA 2: MIN DEGREE
     """
-        Prioriza retângulos com MENOS vértices (mais difíceis de cobrir).
-        
-        Lógica:
-        1. Encontrar retângulo não coberto com menos vértices
-        2. Dentre os vértices desse retângulo, escolher o que cobre mais
-        
-        Critério: ataca os retângulos "difíceis" primeiro
+        Prioriza retângulos com menos vértices (mais difíceis de cobrir).
+        Encontra o retângulo não coberto com menos vértices
+        Dos vértices desse retângulo, escolhe o que cobre mais
+
+        O critério é que  ataca os retângulos difíceis primeiro
     """
         
     def min_degree_greedy(self) -> Tuple[List[Point], int, float]:
@@ -102,7 +99,7 @@ class GreedySolver:
             if min_rect is None:
                 break
             
-            #Escolher melhor vértice DESTE retângulo
+            #Escolher melhor vértice
             best_vertex = None
             best_coverage = 0
             
@@ -124,13 +121,12 @@ class GreedySolver:
         return guards, len(guards), elapsed
     
     
-    # ESTRATÉGIA 3: FREQUENCY WEIGHTED
+    #FREQUENCY WEIGHTED
     """
-        Considera tanto COBERTURA quanto RARIDADE do vértice.
-        
+        Considera tanto cobertura quanto paridade do vértice.
         Score = cobertura × (1 + 1/frequência)
         
-        Lógica: vértices que aparecem em POUCOS retângulos são "críticos"
+        vértices que aparecem em poucos retângulos são críticos e recebem um boost no score.
     """ 
     def frequency_weighted_greedy(self) -> Tuple[List[Point], int, float]:
 
@@ -168,12 +164,11 @@ class GreedySolver:
         return guards, len(guards), elapsed
     
     
-    # ESTRATÉGIA 4: RANDOM GREEDY (com aleatoriedade)
+    #RANDOM GREEDY (aleatorio)
     """
         Greedy com aleatoriedade para escapar de mínimos locais.
         
-        Com probabilidade `randomness`, escolhe aleatoriamente 
-        entre os top 30% candidatos.
+        Com probabilidade random, escolhe aleatoriamente entre os top 30% candidatos.
     """
 
     def random_greedy(self, randomness: float = 0.3) -> Tuple[List[Point], int, float]:
@@ -197,7 +192,7 @@ class GreedySolver:
             if not candidates:
                 break
             
-            # Ordenar por cobertura (melhor primeiro)
+            # Ordenar por cobertura, o melhor vem primeiro
             candidates.sort(key=lambda x: x[1], reverse=True)
             
             # Escolher: melhor OU aleatório entre top 30%
@@ -221,22 +216,22 @@ class GreedySolver:
         print("Testar estratégias greedy...")
         results = {}
         
-        # 1 Max Coverage
+        #Max Coverage
         guards1, n1, t1 = self.max_coverage_greedy()
         results['max_coverage'] = {'guards': guards1, 'count': n1, 'time': t1}
         print(f"  Max Coverage: {n1} guardas em {t1:.4f}s")
         
-        # 2 Min Degree
+        #Min Degree
         guards2, n2, t2 = self.min_degree_greedy()
         results['min_degree'] = {'guards': guards2, 'count': n2, 'time': t2}
         print(f"  Min Degree: {n2} guardas em {t2:.4f}s")
         
-        # 3 Frequency Weighted
+        #Frequency Weighted
         guards3, n3, t3 = self.frequency_weighted_greedy()
         results['frequency_weighted'] = {'guards': guards3, 'count': n3, 'time': t3}
         print(f"  Frequency Weighted: {n3} guardas em {t3:.4f}s")
         
-        # 4 Random Greedy (média de 10 execuções)
+        # média de 10 execuções
         counts = []
         times = []
         for _ in range(10):
@@ -255,7 +250,7 @@ class GreedySolver:
         print(f"  Random Greedy: {avg_count:.1f} guardas (min={min(counts)}, max={max(counts)})")
         
         best = min([n1, n2, n3, min(counts)])
-        print(f"\n✅ Melhor: {best} guardas")
+        print(f"\nMelhor: {best} guardas")
         
         return results
 
