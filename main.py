@@ -14,63 +14,72 @@ from MAC_AC3 import CSPSolver
 
 def analyze_partition(partition, instance_id=0):
     """Analisa uma partição usando todos os métodos"""
-    
-    print(f"\n=== Instância {instance_id} ===")
-    print(f"Retângulos: {len(partition.rectangles)}, Vértices: {len(partition.vertices)}")
-    
+
+    print(f"\n{'='*70}")
+    print(f"INSTÂNCIA {instance_id}")
+    print(f"{'='*70}")
+    print(f"Retângulos: {len(partition.rectangles)}, Vértices: {len(partition.vertices)}\n")
+
     results = {}
-    
+
     # Greedy
+    print("--- GREEDY ---")
     try:
         solver = GreedySolver(partition)
-        _, n1, t1 = solver.max_coverage_greedy()
-        _, n2, t2 = solver.min_degree_greedy()
-        _, n3, t3 = solver.frequency_weighted_greedy()
-        
+
+        g1, n1, t1 = solver.max_coverage_greedy()
+        g2, n2, t2 = solver.min_degree_greedy()
+        g3, n3, t3 = solver.frequency_weighted_greedy()
+
+        print(f"  Max Coverage:       {n1} guardas")
+        print(f"  Min Degree:         {n2} guardas")
+        print(f"  Frequency Weighted: {n3} guardas")
+
         results['greedy'] = {
-            'max_coverage': n1,
-            'min_degree': n2,
-            'frequency': n3
+            'max_coverage': {'num': n1, 'guards': [str(g) for g in g1]},
+            'min_degree': {'num': n2, 'guards': [str(g) for g in g2]},
+            'frequency': {'num': n3, 'guards': [str(g) for g in g3]}
         }
-        print(f"Greedy: {n1}, {n2}, {n3} guardas")
     except Exception as e:
-        print(f"Erro Greedy: {e}")
-    
+        print(f"  Erro: {e}")
+
     # OR-Tools
+    print("\n--- OR-TOOLS (Programação Inteira) ---")
     try:
         solver = IntegerProgrammingSolver(partition)
-        _, n, t, status = solver.solve_with_ortools(time_limit=120.0)
-        results['ortools'] = {'guards': n, 'time': t, 'status': status}
-        print(f"OR-Tools: {n} guardas ({status})")
+        guards, n, t, status = solver.solve_with_ortools(time_limit=120.0)
+        print(f"  Guardas: {n} ({status}, {t:.4f}s)")
+        results['ortools'] = {'num': n, 'guards': [str(g) for g in guards], 'status': status, 'time': t}
     except Exception as e:
-        print(f"Erro OR-Tools: {e}")
-    
+        print(f"  Erro: {e}")
+
     # DP
+    print("\n--- PROGRAMAÇÃO DINÂMICA ---")
     try:
         solver = DPSolver(partition)
-        
-        if len(partition.rectangles) <= 15:
-            _, n, t, status = solver.solve_exact_dp()
-            results['dp_exact'] = n
-            print(f"DP Exato: {n} guardas")
-        
-        _, n, t, status = solver.solve_greedy_dp()
-        results['dp_greedy'] = n
-        print(f"DP Greedy: {n} guardas")
-        
+        print(f"  Processando {len(partition.rectangles)} retângulos (2^{len(partition.rectangles)} estados)...")
+        guards, n, t = solver.solve(verbose=False)
+        print(f"  Guardas: {n} ({t:.4f}s)")
+        results['dp'] = {'num': n, 'guards': [str(g) for g in guards], 'time': t}
+    except MemoryError:
+        print(f"  ERRO: Memória insuficiente!")
     except Exception as e:
-        print(f"Erro DP: {e}")
-    
-    # CSP (só para n pequeno)
-    if len(partition.rectangles) <= 10:
-        try:
-            solver = CSPSolver(partition)
-            _, n, t, status = solver.solve(time_limit=120.0)
-            results['csp'] = n
-            print(f"CSP: {n} guardas")
-        except Exception as e:
-            print(f"Erro CSP: {e}")
-    
+        print(f"  Erro: {e}")
+
+    # CSP
+    print("\n--- CSP (MAC + AC-3) ---")
+    try:
+        solver = CSPSolver(partition)
+        print(f"  Processando {len(partition.rectangles)} retângulos (pode demorar muito)...")
+        guards, n, t, status = solver.solve(time_limit=300.0)
+        print(f"  Guardas: {n} ({t:.4f}s)")
+        results['csp'] = {'num': n, 'guards': [str(g) for g in guards], 'time': t}
+    except MemoryError:
+        print(f"  ERRO: Memória insuficiente!")
+    except Exception as e:
+        print(f"  Erro: {e}")
+
+    print(f"\n{'='*70}\n")
     return results
 
 

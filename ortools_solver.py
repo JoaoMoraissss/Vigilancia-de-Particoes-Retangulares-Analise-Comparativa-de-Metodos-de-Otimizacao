@@ -73,9 +73,6 @@ class IntegerProgrammingSolver:
             
             num_constraints += 1
         
-        #RESOLVER 
-        print(f"  🔧 Resolvendo...")
-        
         status = solver.Solve()
         elapsed = time.time() - start_time
         
@@ -109,31 +106,6 @@ class IntegerProgrammingSolver:
         
         return guards, num_guards, elapsed, status_str
     
-    
-    def print_model_info(self):
-        """Imprime informações sobre o modelo"""
-        
-        print("\n" + "="*70)
-        print("  MODELO DE PROGRAMAÇÃO INTEIRA")
-        print("="*70)
-        
-        print("\n Variáveis de Decisão:")
-        print(f"  x_v ∈ {{0,1}} para cada vértice v")
-        print(f"  x_v = 1 se guarda colocado em v, 0 caso contrário")
-        print(f"\n  Total: {len(self.partition.vertices)} variáveis")
-        
-        print("\n Função Objetivo:")
-        print(f"  minimizar Σ_v x_v")
-        print(f"  (minimizar número total de guardas)")
-        
-        print("\nRestrições:")
-        print(f"  Para cada retângulo r:")
-        print(f"  Σ_{{v ∈ V(r)}} x_v ≥ 1")
-        print(f"  (pelo menos um guarda em algum vértice de r)")
-        print(f"\n  Total: {len(self.target_rectangles)} restrições")
-        
-        print("="*70 + "\n")
-
 
 # ==============================================================================
 # TESTE
@@ -155,10 +127,7 @@ if __name__ == "__main__":
     
     # Criar solver
     solver = IntegerProgrammingSolver(partition)
-    
-    # Mostrar modelo
-    solver.print_model_info()
-    
+
     # Resolver
     guards, num_guards, elapsed, status = solver.solve_with_ortools(time_limit=60.0)
     
